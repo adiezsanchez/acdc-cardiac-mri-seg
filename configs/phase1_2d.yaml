@@ -1,0 +1,10 @@
+# Phase 1 — slice-wise 2D U-Net (no through-plane context).
+# For the official ACDC training set, raise epochs to 50–100 and point
+# data_root at data/raw (see README).
+
+data_root: data/synthetic
+size: 128
+batch_size: 8
+epochs: 8
+lr: 0.001
+base: 16

@@ -1,0 +1,10 @@
+# Phase 3 — light 3D U-Net with anisotropic first convolutions (1×3×3)
+# and in-plane-first pooling. See src/acdc_seg/models/unet3d.py.
+
+data_root: data/synthetic
+size: 128
+depth: 10
+batch_size: 2
+epochs: 24
+lr: 0.001
+base: 8
