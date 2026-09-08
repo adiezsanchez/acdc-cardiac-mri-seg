@@ -121,9 +121,11 @@ pixi run demo
 This will:
 
 1. Write ACDC-layout NIfTIs under `data/synthetic/patientXXX/`
-2. Train **phase 1** (2D U-Net), **phase 2** (neighbouring slices), **phase 3** (light 3D U-Net)
+2. Train **phase 1** (2D U-Net, 8 epochs), **phase 2** (neighbouring slices, 8 epochs), **phase 3** (light 3D U-Net, 24 epochs — 3D needs longer)
 3. Score **volumetric Dice** (RV / MYO / LV) on held-out synthetic volumes
 4. Write Plotly HTML + PNG under `results/figures/`
+
+The figures and `data/synthetic/` NIfTIs in this repo were produced by that pipeline (CUDA-enabled PyTorch; CPU fallback if no GPU is visible).
 
 Individual tasks:
 

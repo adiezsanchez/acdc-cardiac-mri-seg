@@ -24,6 +24,7 @@ Thumbs.db
 
 # Training artifacts (figures and metrics are committed)
 results/checkpoints/
+results/predictions/
 *.pt
 *.pth
 runs/

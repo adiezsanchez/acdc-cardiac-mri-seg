@@ -13,6 +13,7 @@ import numpy as np
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from skimage import measure
+from skimage.measure import find_contours
 
 from acdc_seg.constants import (
     CLASS_COLORS,
@@ -47,15 +48,24 @@ def _write(fig: go.Figure, stem: str, *, width: int = 1100, height: int = 720) -
     return written
 
 
-def _contour_trace(mask: np.ndarray, color: str, name: str) -> go.Contour:
-    return go.Contour(
-        z=mask.astype(np.float32),
-        showscale=False,
-        contours=dict(start=0.5, end=0.5, size=1, coloring="lines"),
-        line=dict(color=color, width=2),
-        name=name,
-        hoverinfo="skip",
-    )
+def _contour_traces(mask: np.ndarray, color: str, name: str | None, *, dash: str = "solid") -> list:
+    """Class-coloured outlines. Plotly ``Contour(coloring='lines')`` ignores ``line.color``."""
+    traces = []
+    shown = False
+    for contour in find_contours(mask.astype(np.float32), 0.5):
+        traces.append(
+            go.Scatter(
+                x=contour[:, 1],
+                y=contour[:, 0],
+                mode="lines",
+                line=dict(color=color, width=2, dash=dash),
+                name=name if not shown else None,
+                showlegend=bool(name) and not shown,
+                hoverinfo="skip",
+            )
+        )
+        shown = True
+    return traces
 
 
 def slice_with_contours(
@@ -80,7 +90,8 @@ def slice_with_contours(
             col=col,
         )
         for label, name in zip(FOREGROUND_LABELS, FOREGROUND_NAMES, strict=True):
-            fig.add_trace(_contour_trace(lab == label, CLASS_COLORS[label], name if col == 1 else f"{name} pred"), row=1, col=col)
+            for tr in _contour_traces(lab == label, CLASS_COLORS[label], name if col == 1 else f"{name} pred"):
+                fig.add_trace(tr, row=1, col=col)
         fig.update_yaxes(autorange="reversed", scaleanchor=f"x{'' if col == 1 else col}", scaleratio=1, row=1, col=col)
         fig.update_xaxes(showticklabels=False, row=1, col=col)
         fig.update_yaxes(showticklabels=False, row=1, col=col)
@@ -104,21 +115,12 @@ def slice_montage(
     for col, z in enumerate(idxs, start=1):
         fig.add_trace(go.Heatmap(z=volume[z], colorscale="Gray", showscale=False), row=1, col=col)
         for label, name in zip(FOREGROUND_LABELS, FOREGROUND_NAMES, strict=True):
-            fig.add_trace(_contour_trace(labels[z] == label, CLASS_COLORS[label], name if col == 1 else None), row=1, col=col)
+            for tr in _contour_traces(labels[z] == label, CLASS_COLORS[label], name if col == 1 else None):
+                fig.add_trace(tr, row=1, col=col)
         if pred is not None:
             for label in FOREGROUND_LABELS:
-                fig.add_trace(
-                    go.Contour(
-                        z=(pred[z] == label).astype(np.float32),
-                        showscale=False,
-                        contours=dict(start=0.5, end=0.5, size=1, coloring="lines"),
-                        line=dict(color=CLASS_COLORS[label], width=1, dash="dash"),
-                        hoverinfo="skip",
-                        showlegend=False,
-                    ),
-                    row=1,
-                    col=col,
-                )
+                for tr in _contour_traces(pred[z] == label, CLASS_COLORS[label], None, dash="dash"):
+                    fig.add_trace(tr, row=1, col=col)
         fig.update_yaxes(autorange="reversed", scaleanchor=f"x{'' if col == 1 else col}", scaleratio=1, row=1, col=col)
         fig.update_xaxes(showticklabels=False, row=1, col=col)
         fig.update_yaxes(showticklabels=False, row=1, col=col)
@@ -149,10 +151,12 @@ def anisotropy_figure(
     )
     fig.add_trace(go.Heatmap(z=volume[zmid], colorscale="Gray", showscale=False), row=1, col=1)
     for label, name in zip(FOREGROUND_LABELS, FOREGROUND_NAMES, strict=True):
-        fig.add_trace(_contour_trace(labels[zmid] == label, CLASS_COLORS[label], name), row=1, col=1)
+        for tr in _contour_traces(labels[zmid] == label, CLASS_COLORS[label], name):
+            fig.add_trace(tr, row=1, col=1)
     fig.add_trace(go.Heatmap(z=coronal_img, colorscale="Gray", showscale=False), row=1, col=2)
     for label, name in zip(FOREGROUND_LABELS, FOREGROUND_NAMES, strict=True):
-        fig.add_trace(_contour_trace(coronal_lab == label, CLASS_COLORS[label], None), row=1, col=2)
+        for tr in _contour_traces(coronal_lab == label, CLASS_COLORS[label], None):
+            fig.add_trace(tr, row=1, col=2)
     fig.update_yaxes(autorange="reversed", scaleanchor="x", scaleratio=1, row=1, col=1)
     # Physical aspect for coronal: each row is sz mm, each col is sx mm.
     fig.update_yaxes(autorange="reversed", scaleanchor="x2", scaleratio=sz / max(sx, 1e-6), row=1, col=2)

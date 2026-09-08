@@ -266,7 +266,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     p_d = sub.add_parser("demo", help="Full synthetic demo used in the README")
     p_d.add_argument("--n-patients", default=10, type=int)
-    p_d.add_argument("--epochs", default=8, type=int)
+    p_d.add_argument("--epochs", default=None, type=int, help="Override epochs for every phase (default: each config)")
     p_d.add_argument("--cpu", action="store_true")
     return parser
 
