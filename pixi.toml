@@ -1,0 +1,60 @@
+# Pedagogical ACDC cardiac MRI segmentation workspace.
+# GPU PyTorch is the default stack (conda-forge + CUDA 12).
+#
+# Declaring `cuda = "12.0"` on each platform tells the solver that a CUDA 12
+# NVIDIA driver is available, so it installs `pytorch-gpu` instead of a CPU
+# build — including when you lock the environment on a machine without a GPU.
+# CUDA *libraries* come from conda-forge; you still need an NVIDIA driver on
+# the host (see README).
+
+[workspace]
+name = "acdc-cardiac-mri-seg"
+version = "0.1.0"
+description = "Pedagogical PyTorch pipeline for ACDC LV / myocardium / RV segmentation"
+authors = ["ACDC Cardiac MRI Seg contributors"]
+channels = ["conda-forge"]
+platforms = [
+    { platform = "linux-64", cuda = "12.0" },
+    { platform = "win-64", cuda = "12.0" },
+]
+license = "MIT"
+readme = "README.md"
+
+[dependencies]
+python = "3.12.*"
+pytorch-gpu = ">=2.5"
+cuda-version = ">=12.4,<13"
+numpy = ">=1.26,<3"
+nibabel = ">=5.2"
+scipy = ">=1.13"
+scikit-image = ">=0.24"
+plotly = ">=5.24"
+python-kaleido = ">=0.2"
+napari = ">=0.4.19"
+pyqt = ">=5.15,<6"
+qtpy = ">=2.4"
+vispy = ">=0.14"
+tqdm = ">=4.66"
+pyyaml = ">=6.0"
+pandas = ">=2.2"
+pytest = ">=8.0"
+pip = ">=24"
+
+# `pixi run` tasks always execute with this env, so imports resolve on
+# Linux and Windows without a separate pyproject package.
+[activation.env]
+PYTHONPATH = "src"
+PYTHONUNBUFFERED = "1"
+
+[tasks]
+check-stack = "python -m acdc_seg check-stack"
+check-cuda = "python -m acdc_seg check-cuda"
+synth-data = "python -m acdc_seg synth"
+train-phase1 = "python -m acdc_seg train --phase 1"
+train-phase2 = "python -m acdc_seg train --phase 2"
+train-phase3 = "python -m acdc_seg train --phase 3"
+evaluate = "python -m acdc_seg evaluate --phase all"
+figures = "python -m acdc_seg figures"
+napari-view = "python -m acdc_seg napari"
+demo = "python -m acdc_seg demo"
+test = "python -m pytest -q tests"

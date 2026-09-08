@@ -1,0 +1,44 @@
+# Pixi
+.pixi/
+!.pixi/config.toml
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Training artifacts (figures and metrics are committed)
+results/checkpoints/
+*.pt
+*.pth
+runs/
+
+# User-downloaded ACDC (never commit clinical data)
+data/raw/training/
+data/raw/testing/
+data/raw/**/*.nii
+data/raw/**/*.nii.gz
+!data/raw/.gitkeep
+!data/raw/README.txt
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Env
+.env
+.venv/

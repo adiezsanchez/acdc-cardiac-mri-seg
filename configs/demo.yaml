@@ -1,0 +1,11 @@
+# Shared demo hyperparameters. `pixi run demo` trains all three phases on the
+# synthetic dataset; swap `data_root` to `data/raw` after you download ACDC.
+
+data_root: data/synthetic
+size: 128
+depth: 10
+context: 1          # phase 2: ±1 neighbouring slice → 3 input channels
+batch_size: 8
+epochs: 8
+lr: 0.001
+base: 16            # phase 3 overrides this to 8 in code when unset per-phase
